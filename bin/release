@@ -1,6 +1,14 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
+# bin/release <build-dir>
 
-require 'pathname'
+BUILD_DIR=$1
 
-release = Pathname.new(ARGV.first).join("tmp/heroku-buildpack-release-step.yml")
-puts release.read if release.exist?
+cat <<EOF
+---
+config_vars:
+  PATH: /app/.jdk/bin:/usr/local/bin:/usr/bin:/bin
+  JAVA_OPTS: -Xmx384m -Xss512k -XX:+UseCompressedOops
+  MAVEN_OPTS: -Xmx384m -Xss512k -XX:+UseCompressedOops 
+addons:
+  heroku-postgresql:dev
+EOF

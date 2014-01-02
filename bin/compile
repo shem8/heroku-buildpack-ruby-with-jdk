@@ -1,23 +1,32 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir> <env-file>
 
-p "running java install script"
+# fail fast
+set -e
 
-p "-----> Installing OpenJDK 7..."
-`install_java #{ARGV[0]} 7`
-`jdk_overlay #{ARGV[0]}`
-p "-----> Install done"
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+. $BIN_DIR/common # common functions
 
-# sync output
-$stdout.sync = true
+# parse args
+BUILD_DIR=$1
+CACHE_DIR=$2
+export_env_file $3
 
-$:.unshift File.expand_path("../../lib", __FILE__)
-require "language_pack"
+LOGGER_FLAGS=""
 
-LanguagePack::Instrument.trace 'compile', 'app.compile' do
-  if pack = LanguagePack.detect(ARGV[0], ARGV[1])
-    pack.topic("Compiling #{pack.name}")
-    pack.log("compile") do
-      pack.compile
-    end
-  end
-end
+curl --silent --location http://heroku-jvm-common.s3.amazonaws.com/jvm-buildpack-common.tar.gz | tar xz
+. bin/java
+
+KEEP_M2_CACHE="true"
+
+# install JDK 
+javaVersion=$(detect_java_version ${BUILD_DIR})
+echo -n "-----> Installing OpenJDK ${javaVersion}..."
+install_java ${BUILD_DIR} ${javaVersion}
+jdk_overlay ${BUILD_DIR}
+echo " done"
+
+PROFILE_PATH="$BUILD_DIR/.profile.d/java.sh"
+mkdir -p $(dirname $PROFILE_PATH)
+echo 'export PATH="/app/.jdk/bin:$PATH"' >> $PROFILE_PATH
+echo 'export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Djava.rmi.server.useCodebaseOnly=true"' >> $PROFILE_PATH

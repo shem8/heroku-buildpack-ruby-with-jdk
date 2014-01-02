@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 
 p "running java install script"
-`java_install.sh #{ARGV[0]} #{ARGV[1]}`
+
+p "-----> Installing OpenJDK 7..."
+`install_java #{ARGV[0]} 7`
+`jdk_overlay #{ARGV[0]}`
+p "-----> Install done"
 
 # sync output
 $stdout.sync = true

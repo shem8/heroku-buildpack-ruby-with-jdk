@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir> <env-file>
 
+echo "test"
+
 # fail fast
 set -e
 
+echo "1"
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+echo "2"
 . $BIN_DIR/common # common functions
+echo "3"
 
 # parse args
 BUILD_DIR=$1
 CACHE_DIR=$2
 export_env_file $3
+echo "4"
 
 LOGGER_FLAGS=""
 

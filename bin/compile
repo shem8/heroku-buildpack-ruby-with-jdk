@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+p "running java install script"
+`java_install.sh #{argv[0]} #{argv[1]}`
+
 # sync output
 $stdout.sync = true
 
